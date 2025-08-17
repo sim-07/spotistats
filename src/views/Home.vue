@@ -1,9 +1,8 @@
 <template>
     <div class="flex flex-col min-h-screen bg-[#1a1a1a] text-white antialiased">
-
         <header class="bg-[#1a1a1a]">
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                <nav class="flex items-center justify-between h-16 relative">
+                <nav class="flex items-center justify-between h-16 relative mt-3">
                     <div class="flex items-center gap-3">
                         <div
                             class="w-9 h-9 rounded-lg flex items-center justify-center bg-emerald-500 text-white shadow-sm">
@@ -19,24 +18,21 @@
                         <a href="https://www.spotify.com/us/account/privacy/" target="_blank"
                             class="hover:text-emerald-400">How to get history</a>
                     </div>
-
                 </nav>
             </div>
         </header>
 
-
-
         <main class="flex-1">
             <section class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
                     <div class="lg:col-span-6">
                         <h1 class="text-4xl sm:text-5xl leading-tight font-extrabold text-gray-300 mb-6">
                             Explore your Spotify listening history
                         </h1>
 
                         <p class="text-base text-gray-400 max-w-xl mb-8">
-                            Upload all the folder "Spotify Extended Streaming History" already extracted (NOT zip) — it
-                            will be processed locally in your browser.
+                            Upload the folder "Spotify Extended Streaming History" already extracted (NOT zip) — it will
+                            be processed locally in your browser.
                         </p>
 
                         <div class="flex items-start">
@@ -57,8 +53,6 @@
                                     Upload history
                                 </span>
                             </label>
-
-
                         </div>
 
                         <p class="text-xs text-gray-500 mt-3">
@@ -66,64 +60,58 @@
                         </p>
                     </div>
 
-                    <div class="lg:col-span-6 hidden lg:flex justify-center">
-                        <div class="w-full max-w-md">
-                            <div class="rounded-2xl p-6 bg-gradient-to-br from-white to-gray-50 shadow-md">
-                                <div class="flex items-center gap-4 mb-4">
-                                    <div
-                                        class="w-16 h-16 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow">
-                                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
-                                            <path d="M12 3v12" stroke="currentColor" stroke-width="1.6"
-                                                stroke-linecap="round" stroke-linejoin="round" />
-                                            <path d="M8 7l4-4 4 4" stroke="currentColor" stroke-width="1.6"
-                                                stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-semibold text-gray-800">Listening summary</div>
-                                        <div class="text-xs text-gray-500">Sample preview</div>
-                                    </div>
-                                </div>
+                    <div v-if="showStats" class="lg:col-span-6 mt-4 p-4 text-white">
+                        <select v-model="time" class="p-2 rounded text-black">
+                            <option :value="30">1 month</option>
+                            <option :value="180">6 months</option>
+                            <option :value="365">1 year</option>
+                            <option :value="0">All</option>
+                        </select>
 
-                                <div class="grid grid-cols-3 gap-3 text-center">
-                                    <div>
-                                        <div class="text-lg font-bold text-gray-900">256</div>
-                                        <div class="text-xs text-gray-500">Tracks</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-lg font-bold text-gray-900">7,892</div>
-                                        <div class="text-xs text-gray-500">Minutes</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-lg font-bold text-gray-900">128</div>
-                                        <div class="text-xs text-gray-500">Artists</div>
-                                    </div>
-                                </div>
+                        <h1 class="text-2xl mt-8">Total listened: <strong>{{ totalListenedMinutes }}</strong> minutes
+                        </h1>
 
-                                <div class="mt-5">
-                                    <div class="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
-                                        <div class="h-full bg-emerald-500" style="width:62%"></div>
-                                    </div>
-                                    <div class="text-xs text-gray-500 mt-2">Listening progress</div>
-                                </div>
-                            </div>
+                        <h2 class="text-2xl mt-8 mb-4">Top artists</h2>
+
+                        <!-- TABLE -->
+                        <table class="border-separate border-spacing-y-2 w-full">
+                            <thead>
+                                <tr class="text-left text-gray-300">
+                                    <th class="px-3 py-2">#</th>
+                                    <th class="px-3 py-2">Artist</th>
+                                    <th class="px-3 py-2">Minutes listened</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, idx) in displayedArtists" :key="item.artist"
+                                    class="bg-[#222] rounded">
+                                    <td class="px-3 py-2 align-top">{{ idx + 1 }}</td>
+                                    <td class="px-3 py-2 align-top">{{ item.artist }}</td>
+                                    <td class="px-3 py-2 align-top">{{ item.minutes > 0 ? item.minutes : '<1' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+
+                        <div v-if="topArtists.length > 10" class="mt-10">
+                            <button @click="showAll = !showAll"
+                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
+                                {{ showAll ? 'Show less' : 'View all' }}
+                            </button>
                         </div>
+                        <!---------->
+
+                        
+                        <!-- CHART -->
+                        <div class="mt-8 chart-wrapper">
+                            <LineChart :data="chartData" :options="chartOptions" />
+                        </div>
+                        <!---------->
                     </div>
                 </div>
             </section>
         </main>
-
-        <div v-if="showStats" class="mt-4 p-4 bg-emerald-500 text-white">
-            <select v-model="time" class="mb-2 p-1 rounded text-black">
-                <option :value="30">1 month</option>
-                <option :value="180">6 months</option>
-                <option :value="365">1 year</option>
-                <option :value="0">All</option>
-            </select>
-
-            <h1>Total listened: {{ totalListenedMinutes }}</h1>
-        </div>
-
 
         <footer class="mt-auto py-8 text-center text-sm text-gray-500">
             © 2025 Spotify Stats
@@ -132,61 +120,74 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { Line } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler } from 'chart.js'
+import type { ChartData, ChartOptions } from 'chart.js'
 
 interface historyProps {
-    ts: string;
-    ms_played: number;
-    master_metadata_track_name: string;
-    master_metadata_album_artist_name: string;
+    ts: string
+    ms_played: number
+    master_metadata_track_name: string
+    master_metadata_album_artist_name: string
 }
 
 const showStats = ref(false)
 const time = ref(30)
-const totalListenedMinutes = ref(0)
 let allData: historyProps[][] = []
+const totalListenedMinutes = ref(0)
+const topArtists = ref<{ artist: string; minutes: number }[]>([])
+const graphData = ref(new Map<string, number>())
+const showAll = ref(false)
+
+const displayedArtists = computed(() => (showAll.value ? topArtists.value : topArtists.value.slice(0, 10)))
 
 async function handleFolder(event: Event) {
     const files = (event.target as HTMLInputElement).files
     if (!files || files.length === 0) return
 
     const fileArray = Array.from(files)
-    const jsonFiles = fileArray.filter(f => f.name.endsWith('.json'))
+    const jsonFiles = fileArray.filter((f) => f.name.endsWith('.json'))
 
     const dataArray = await Promise.all(
-        jsonFiles.map(file =>
-            new Promise<historyProps[]>((resolve) => {
-                const reader = new FileReader()
-                reader.onload = () => {
-                    try {
-                        const data = JSON.parse(reader.result as string)
-                        resolve(data)
-                    } catch {
-                        console.warn(file.name + ' is not valid JSON')
-                        resolve([])
+        jsonFiles.map(
+            (file) =>
+                new Promise<historyProps[]>((resolve) => {
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                        try {
+                            const data = JSON.parse(reader.result as string)
+                            resolve(data)
+                        } catch {
+                            console.warn(file.name + ' is not valid JSON')
+                            resolve([])
+                        }
                     }
-                }
-                reader.readAsText(file)
-            })
+                    reader.readAsText(file)
+                })
         )
     )
 
     allData = dataArray
     showStats.value = true
     calculateStats()
+    calculateTopArtists()
+    calcGraphData()
 }
 
 watch(time, () => {
     calculateStats()
+    calculateTopArtists()
+    calcGraphData()
 })
 
 function calculateStats() {
     let totalListened = 0
-    const now = new Date().getTime()
+    const now = Date.now()
     const cutoff = time.value > 0 ? now - time.value * 24 * 60 * 60 * 1000 : 0
 
-    allData.forEach(fileData => {
-        fileData.forEach(track => {
+    allData.forEach((fileData) => {
+        fileData.forEach((track) => {
             const trackTime = new Date(track.ts).getTime()
             if (cutoff === 0 || trackTime >= cutoff) {
                 totalListened += track.ms_played
@@ -197,6 +198,100 @@ function calculateStats() {
     totalListenedMinutes.value = Math.floor(totalListened / 1000 / 60)
 }
 
+function calculateTopArtists() {
+    const artistMap = new Map<string, number>()
+    const now = Date.now()
+    const cutoff = time.value > 0 ? now - time.value * 24 * 60 * 60 * 1000 : 0
+
+    allData.forEach((fileData) => {
+        fileData.forEach((track) => {
+            const trackTime = new Date(track.ts).getTime()
+            if (cutoff === 0 || trackTime >= cutoff) {
+                if (!track.master_metadata_album_artist_name || !track.ms_played) return
+
+                const prev = artistMap.get(track.master_metadata_album_artist_name) || 0
+                artistMap.set(track.master_metadata_album_artist_name, prev + track.ms_played)
+            }
+        })
+    })
+
+    const sorted = Array.from(artistMap.entries())
+        .map(([artist, ms]) => ({
+            artist,
+            minutes: Math.floor(ms / 1000 / 60),
+        }))
+        .sort((a, b) => b.minutes - a.minutes)
+
+    topArtists.value = sorted
+}
+
+function calcGraphData() {
+    const now = Date.now()
+    const cutoff = time.value > 0 ? now - time.value * 24 * 60 * 60 * 1000 : 0
+    const tempMap = new Map<string, number>()
+
+    allData.forEach((fileData) => {
+        fileData.forEach((track) => {
+            const trackTime = new Date(track.ts).getTime()
+            if (cutoff === 0 || trackTime >= cutoff) {
+                const day = new Date(track.ts).toISOString().slice(0, 10)
+                const prev = tempMap.get(day) || 0
+                tempMap.set(day, prev + track.ms_played)
+            }
+        })
+    })
+
+    const finalMap = new Map<string, number>()
+    tempMap.forEach((ms, day) => finalMap.set(day, Math.floor(ms / 1000 / 60)))
+    graphData.value = finalMap
+}
+
+ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler)
+const LineChart = Line
+
+const chartData = computed<ChartData<'line', number[], string>>(() => {
+    const sortedDays = Array.from(graphData.value.keys()).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+    const data = sortedDays.map((day) => graphData.value.get(day) || 0)
+    const labels = sortedDays.map((d) => {
+        const dt = new Date(d)
+        const dd = dt.getDate().toString().padStart(2, '0')
+        const mm = (dt.getMonth() + 1).toString().padStart(2, '0')
+        return `${dd}/${mm}/${dt.getFullYear()}`
+    })
+
+    return {
+        labels,
+        datasets: [
+            {
+                label: 'Minutes listened',
+                data,
+                borderColor: '#34d399',
+                backgroundColor: 'rgba(52, 211, 153, 0.18)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 2,
+            },
+        ],
+    }
+})
+
+const chartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false },
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: { stepSize: 10 },
+        },
+        x: {
+            ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+        },
+    },
+}
 </script>
 
 <style scoped>
@@ -208,5 +303,9 @@ function calculateStats() {
 .fade-enter-from,
 .fade-leave-to {
     opacity: 0;
+}
+
+.chart-wrapper {
+    height: 240px;
 }
 </style>
