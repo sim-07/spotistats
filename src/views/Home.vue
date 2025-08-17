@@ -94,7 +94,7 @@
                                             <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
                                             <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
                                             <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
-                                                    }}</td>
+                                            }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -307,8 +307,8 @@ function calcCalendarData() {
     allData.forEach((fileData) => {
         fileData.forEach((track) => {
             const day = new Date(track.ts).toISOString().slice(0, 10)
-            const artist = track.master_metadata_album_artist_name
-            const minutes = track.ms_played / 1000 / 60
+            const artist = track.master_metadata_album_artist_name || 'Unknown'
+            const minutes = (track.ms_played || 0) / 1000 / 60
 
             let artistMap = tempMapPerDay.get(day)
             if (!artistMap) {
@@ -321,7 +321,27 @@ function calcCalendarData() {
         })
     })
 
-    listeningPerDayPerArtist.value = tempMapPerDay
+    const sortedPerDay = new Map<string, Map<string, number>>()
+    tempMapPerDay.forEach((artistMap, day) => {
+        const sortedArtists = Array.from(artistMap.entries())
+            .sort((a, b) => b[1] - a[1])
+        sortedPerDay.set(day, new Map(sortedArtists))
+    })
+
+    const daysWithTotals: Array<[string, number]> = []
+    sortedPerDay.forEach((artistMap, day) => {
+        const total = Array.from(artistMap.values()).reduce((s, v) => s + v, 0)
+        daysWithTotals.push([day, total])
+    })
+
+    daysWithTotals.sort((a, b) => b[1] - a[1]) 
+
+    const finalOrdered = new Map<string, Map<string, number>>()
+    for (const [day] of daysWithTotals) {
+        finalOrdered.set(day, sortedPerDay.get(day)!)
+    }
+
+    listeningPerDayPerArtist.value = finalOrdered
 }
 
 
