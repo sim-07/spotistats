@@ -25,7 +25,7 @@
         <main class="flex flex-1 flex-col justify-center">
             <section class="mx-auto px-6 py-20 max-w-5xl">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                    <div v-if="!showStats">
+                    <div v-if="!showStats" class="lg:col-span-9">
                         <h1 class="text-4xl sm:text-5xl leading-tight font-extrabold text-gray-300 mb-6">
                             Explore your Spotify listening history
                         </h1>
