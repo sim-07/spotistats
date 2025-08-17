@@ -70,6 +70,7 @@
 
                         <h1 class="text-2xl mt-8">Total listened: <strong>{{ totalListenedMinutes }}</strong> minutes
                         </h1>
+                        <br /><br /><br />
 
                         <h2 class="text-2xl mt-8 mb-4">Top artists</h2>
 
@@ -94,19 +95,52 @@
 
 
 
-                        <div v-if="topArtists.length > 10" class="mt-10">
+                        <div v-if="topArtists.length > 10" class="mt-5">
                             <button @click="showAll = !showAll"
                                 class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
                                 {{ showAll ? 'Show less' : 'View all' }}
                             </button>
                         </div>
+                        <br /><br /><br /><br /><br />
                         <!---------->
 
-                        
+
                         <!-- CHART -->
-                        <div class="mt-8 chart-wrapper">
+                        <div class="mt-8 chart-wrapper mb-10">
                             <LineChart :data="chartData" :options="chartOptions" />
                         </div>
+                        <br /><br /><br />
+                        <!---------->
+
+
+                        <!-- CALENDAR -->
+
+                        <div class="flex gap-4 mt-10">
+                            <VDatePicker v-model="selectedDay" mode="date" class="flex-1" />
+
+                            <div class="flex-1 bg-gray-800 text-white p-4 rounded-lg">
+                                <h2>{{ selectedDay.toLocaleDateString('en-GB') }}</h2>
+
+                                <table class="border-separate border-spacing-y-2 w-full">
+                                    <thead>
+                                        <tr class="text-left text-gray-300">
+                                            <th class="px-3 py-2">Artist</th>
+                                            <th class="px-3 py-2">Minutes listened</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="([artist, minutes], idx) in Array.from(listeningPerDayPerArtist.get(selectedDay.toISOString().slice(0, 10)) || [])"
+                                            :key="artist" class="bg-[#222] rounded">
+                                            <td class="px-3 py-2 align-top">{{ artist }}</td>
+                                            <td class="px-3 py-2 align-top">{{ Math.floor(minutes) > 0 ?
+                                                Math.floor(minutes) : '<1' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+
                         <!---------->
                     </div>
                 </div>
@@ -137,8 +171,11 @@ const time = ref(30)
 let allData: historyProps[][] = []
 const totalListenedMinutes = ref(0)
 const topArtists = ref<{ artist: string; minutes: number }[]>([])
-const graphData = ref(new Map<string, number>())
+const listeningPerDay = ref(new Map<string, number>())
+const listeningPerDayPerArtist = ref(new Map<string, Map<string, number>>())
 const showAll = ref(false)
+const selectedDay = ref(new Date())
+
 
 const displayedArtists = computed(() => (showAll.value ? topArtists.value : topArtists.value.slice(0, 10)))
 
@@ -173,12 +210,18 @@ async function handleFolder(event: Event) {
     calculateStats()
     calculateTopArtists()
     calcGraphData()
+    calcCalendarData()
 }
 
 watch(time, () => {
     calculateStats()
     calculateTopArtists()
     calcGraphData()
+    calcCalendarData()
+})
+
+watch(listeningPerDayPerArtist, () => {
+    console.log(listeningPerDayPerArtist)
 })
 
 function calculateStats() {
@@ -243,15 +286,40 @@ function calcGraphData() {
 
     const finalMap = new Map<string, number>()
     tempMap.forEach((ms, day) => finalMap.set(day, Math.floor(ms / 1000 / 60)))
-    graphData.value = finalMap
+    listeningPerDay.value = finalMap
+
 }
+
+function calcCalendarData() {
+    const tempMapPerDay = new Map<string, Map<string, number>>()
+
+    allData.forEach((fileData) => {
+        fileData.forEach((track) => {
+            const day = new Date(track.ts).toISOString().slice(0, 10)
+            const artist = track.master_metadata_album_artist_name
+            const minutes = track.ms_played / 1000 / 60
+
+            let artistMap = tempMapPerDay.get(day)
+            if (!artistMap) {
+                artistMap = new Map<string, number>()
+                tempMapPerDay.set(day, artistMap)
+            }
+
+            const prevMinutes = artistMap.get(artist) || 0
+            artistMap.set(artist, prevMinutes + minutes)
+        })
+    })
+
+    listeningPerDayPerArtist.value = tempMapPerDay
+}
+
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler)
 const LineChart = Line
 
 const chartData = computed<ChartData<'line', number[], string>>(() => {
-    const sortedDays = Array.from(graphData.value.keys()).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-    const data = sortedDays.map((day) => graphData.value.get(day) || 0)
+    const sortedDays = Array.from(listeningPerDay.value.keys()).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+    const data = sortedDays.map((day) => listeningPerDay.value.get(day) || 0)
     const labels = sortedDays.map((d) => {
         const dt = new Date(d)
         const dd = dt.getDate().toString().padStart(2, '0')
@@ -292,6 +360,8 @@ const chartOptions: ChartOptions<'line'> = {
         },
     },
 }
+
+
 </script>
 
 <style scoped>

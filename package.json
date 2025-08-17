@@ -9,8 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
     "chart.js": "^4.5.0",
+    "v-calendar": "^3.1.2",
     "vue": "^3.5.18",
+    "vue-cal": "^4.10.2",
     "vue-chartjs": "^5.3.2",
     "vue-router": "^4.5.1"
   },
