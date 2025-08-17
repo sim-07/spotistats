@@ -22,7 +22,7 @@
             </div>
         </header>
 
-        <main class="flex-1 justify-center">
+        <main class="flex flex-1 flex-col justify-center">
             <section class="mx-auto px-6 py-20 max-w-6xl">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
                     <div class="lg:col-span-6">
