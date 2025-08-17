@@ -23,9 +23,9 @@
         </header>
 
         <main class="flex flex-1 flex-col justify-center">
-            <section class="mx-auto px-6 py-20 max-w-6xl">
+            <section class="mx-auto px-6 py-20 max-w-5xl">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                    <div class="lg:col-span-6">
+                    <div v-if="!showStats" class="lg:col-span-6">
                         <h1 class="text-4xl sm:text-5xl leading-tight font-extrabold text-gray-300 mb-6">
                             Explore your Spotify listening history
                         </h1>
@@ -60,90 +60,88 @@
                         </p>
                     </div>
 
-                    <div v-if="showStats" class="lg:col-span-6 mt-4 p-4 text-white">
-                        <select v-model="time" class="p-2 rounded text-black">
-                            <option :value="30">1 month</option>
-                            <option :value="180">6 months</option>
-                            <option :value="365">1 year</option>
-                            <option :value="0">All</option>
-                        </select>
+                    <!-- replace the current stats container -->
+                    <div v-if="showStats" class="lg:col-span-12 mt-4 p-6 text-white">
+                        <div class="flex items-center gap-4">
+                            <select v-model="time" class="p-2 rounded text-black">
+                                <option :value="30">1 month</option>
+                                <option :value="180">6 months</option>
+                                <option :value="365">1 year</option>
+                                <option :value="0">All</option>
+                            </select>
 
-                        <h1 class="text-2xl mt-8">Total listened: <strong>{{ totalListenedMinutes }}</strong> minutes
-                        </h1>
-                        <br /><br /><br />
-
-                        <h2 class="text-2xl mt-8 mb-4">Top artists</h2>
-
-                        <!-- TABLE -->
-                        <table class="border-separate border-spacing-y-2 w-full">
-                            <thead>
-                                <tr class="text-left text-gray-300">
-                                    <th class="px-3 py-2">#</th>
-                                    <th class="px-3 py-2">Artist</th>
-                                    <th class="px-3 py-2">Minutes listened</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(item, idx) in displayedArtists" :key="item.artist"
-                                    class="bg-[#222] rounded">
-                                    <td class="px-3 py-2 align-top">{{ idx + 1 }}</td>
-                                    <td class="px-3 py-2 align-top">{{ item.artist }}</td>
-                                    <td class="px-3 py-2 align-top">{{ item.minutes > 0 ? item.minutes : '<1' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-
-
-                        <div v-if="topArtists.length > 10" class="mt-5">
-                            <button @click="showAll = !showAll"
-                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
-                                {{ showAll ? 'Show less' : 'View all' }}
-                            </button>
+                            <h1 class="text-lg font-semibold ml-4">Total listened:
+                                <span class="text-2xl font-bold ml-2">{{ totalListenedMinutes }}</span> minutes
+                            </h1>
                         </div>
-                        <br /><br /><br /><br /><br />
-                        <!---------->
 
+                        <div class="mt-8">
+                            <h2 class="text-2xl mb-4">Top artists</h2>
+
+                            <!-- TABLE -->
+                            <div class="overflow-auto">
+                                <table class="table-fixed w-full border-separate border-spacing-y-3">
+                                    <thead>
+                                        <tr class="text-left text-gray-300">
+                                            <th class="px-4 py-3 w-12">#</th>
+                                            <th class="px-4 py-3">Artist</th>
+                                            <th class="px-4 py-3 w-48">Minutes listened</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, idx) in displayedArtists" :key="item.artist"
+                                            class="bg-[#222] rounded">
+                                            <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
+                                            <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
+                                            <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
+                                                    }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div v-if="topArtists.length > 10" class="mt-4">
+                                <button @click="showAll = !showAll"
+                                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
+                                    {{ showAll ? 'Show less' : 'View all' }}
+                                </button>
+                            </div>
+                        </div>
 
                         <!-- CHART -->
                         <div class="mt-8 chart-wrapper mb-10">
                             <LineChart :data="chartData" :options="chartOptions" />
                         </div>
-                        <br /><br /><br />
-                        <!---------->
 
+                        <div class="mt-8">
+                            <div class="flex flex-col md:flex-row gap-4 w-full">
+                                <div class="flex-1 min-w-0">
+                                    <VDatePicker v-model="selectedDay" mode="date" class="w-full" />
+                                </div>
 
-                        <!-- CALENDAR -->
-
-                        <div class="flex flex-col md:flex-row gap-4 mt-10 w-full force-md-row">
-                            <div class="flex-1 min-w-0">
-                                <VDatePicker v-model="selectedDay" mode="date" class="w-full" />
-                            </div>
-
-                            <div class="flex-1 min-w-0 bg-gray-800 text-white p-4 rounded-lg w-full">
-                                <h2>{{ selectedDay.toLocaleDateString('en-GB') }}</h2>
-
-                                <table class="border-separate border-spacing-y-2 w-full">
-                                    <thead>
-                                        <tr class="text-left text-gray-300">
-                                            <th class="px-3 py-2">Artist</th>
-                                            <th class="px-3 py-2">Minutes listened</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="([artist, minutes]) in Array.from(listeningPerDayPerArtist.get(selectedDay.toISOString().slice(0, 10)) || [])"
-                                            :key="artist" class="bg-[#222] rounded">
-                                            <td class="px-3 py-2 align-top">{{ artist }}</td>
-                                            <td class="px-3 py-2 align-top">{{ Math.floor(minutes) > 0 ?
-                                                Math.floor(minutes) : '<1' }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="flex-1 min-w-0 bg-gray-800 text-white p-4 rounded-lg w-full">
+                                    <h2>{{ selectedDay.toLocaleDateString('en-GB') }}</h2>
+                                    <table class="table-fixed w-full border-separate border-spacing-y-2 mt-3">
+                                        <thead>
+                                            <tr class="text-left text-gray-300">
+                                                <th class="px-3 py-2">Artist</th>
+                                                <th class="px-3 py-2">Minutes listened</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="([artist, minutes]) in Array.from(listeningPerDayPerArtist.get(selectedDay.toISOString().slice(0, 10)) || [])"
+                                                :key="artist" class="bg-[#222] rounded">
+                                                <td class="px-3 py-2 align-top">{{ artist }}</td>
+                                                <td class="px-3 py-2 align-top">{{ Math.floor(minutes) > 0 ?
+                                                    Math.floor(minutes) : '<1' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-
-                        <!---------->
                     </div>
+
                 </div>
             </section>
         </main>
