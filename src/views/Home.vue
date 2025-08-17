@@ -115,10 +115,12 @@
 
                         <!-- CALENDAR -->
 
-                        <div class="flex gap-4 mt-10">
-                            <VDatePicker v-model="selectedDay" mode="date" class="flex-1" />
+                        <div class="flex flex-col md:flex-row gap-4 mt-10 w-full force-md-row">
+                            <div class="flex-1 min-w-0">
+                                <VDatePicker v-model="selectedDay" mode="date" class="w-full" />
+                            </div>
 
-                            <div class="flex-1 bg-gray-800 text-white p-4 rounded-lg">
+                            <div class="flex-1 min-w-0 bg-gray-800 text-white p-4 rounded-lg w-full">
                                 <h2>{{ selectedDay.toLocaleDateString('en-GB') }}</h2>
 
                                 <table class="border-separate border-spacing-y-2 w-full">
@@ -137,7 +139,6 @@
                                         </tr>
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
 
@@ -152,6 +153,18 @@
         </footer>
     </div>
 </template>
+
+<style scoped>
+@media (min-width: 768px) {
+    .force-md-row {
+        flex-direction: row !important;
+    }
+}
+
+.force-md-row>* {
+    min-width: 0;
+}
+</style>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
