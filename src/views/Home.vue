@@ -23,7 +23,7 @@
         </header>
 
         <main class="flex-1">
-            <section class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+            <section class="mx-auto px-6 py-20 max-w-6xl">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
                     <div class="lg:col-span-6">
                         <h1 class="text-4xl sm:text-5xl leading-tight font-extrabold text-gray-300 mb-6">
