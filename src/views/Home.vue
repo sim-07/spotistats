@@ -129,7 +129,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="([artist, minutes], idx) in Array.from(listeningPerDayPerArtist.get(selectedDay.toISOString().slice(0, 10)) || [])"
+                                        <tr v-for="([artist, minutes]) in Array.from(listeningPerDayPerArtist.get(selectedDay.toISOString().slice(0, 10)) || [])"
                                             :key="artist" class="bg-[#222] rounded">
                                             <td class="px-3 py-2 align-top">{{ artist }}</td>
                                             <td class="px-3 py-2 align-top">{{ Math.floor(minutes) > 0 ?
