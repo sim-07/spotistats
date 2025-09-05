@@ -60,7 +60,6 @@
                         </p>
                     </div>
 
-                    <!-- replace the current stats container -->
                     <div v-if="showStats" class="lg:col-span-12 mt-4 p-6 text-white">
                         <div class="flex items-center gap-4">
                             <select v-model="time" class="p-2 rounded text-black">
@@ -94,7 +93,7 @@
                                             <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
                                             <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
                                             <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
-                                                    }}</td>
+                                            }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -113,6 +112,7 @@
                             <LineChart :data="chartData" :options="chartOptions" />
                         </div>
 
+                        <!-- CALENDAR -->
                         <div class="mt-8">
                             <div class="flex flex-col md:flex-row gap-4 w-full">
                                 <div class="flex-1 min-w-0">
@@ -179,7 +179,7 @@ interface historyProps {
 
 const showStats = ref(false)
 const time = ref(30)
-let allData: historyProps[][] = []
+let allData: historyProps[] = []
 const totalListenedMinutes = ref(0)
 const topArtists = ref<{ artist: string; minutes: number }[]>([])
 const listeningPerDay = ref(new Map<string, number>())
@@ -217,10 +217,14 @@ async function handleFolder(event: Event) {
         )
     )
 
-    allData = dataArray
-    const lastDay = allData[allData.length - 1]
-    const lastTrack = lastDay[lastDay.length - 1]
+    allData = dataArray.flat().sort((a, b) => {
+        return new Date(a.ts).getTime() - new Date(b.ts).getTime()
+    })
+    const lastTrack = allData[allData.length - 1]
+
     lastDate = new Date(lastTrack.ts).getTime();
+
+    selectedDay.value = new Date(lastTrack.ts);
     showStats.value = true
     calculateStats()
     calculateTopArtists()
@@ -235,21 +239,15 @@ watch(time, () => {
     calcCalendarData()
 })
 
-watch(listeningPerDayPerArtist, () => {
-    console.log(listeningPerDayPerArtist)
-})
-
 function calculateStats() {
     let totalListened = 0
     const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
 
-    allData.forEach((fileData) => {
-        fileData.forEach((track) => {
-            const trackTime = new Date(track.ts).getTime()
-            if (cutoff === 0 || trackTime >= cutoff) {
-                totalListened += track.ms_played
-            }
-        })
+    allData.forEach((track) => {
+        const trackTime = new Date(track.ts).getTime()
+        if (cutoff === 0 || trackTime >= cutoff) {
+            totalListened += track.ms_played
+        }
     })
 
     totalListenedMinutes.value = Math.floor(totalListened / 1000 / 60)
@@ -259,16 +257,14 @@ function calculateTopArtists() {
     const artistMap = new Map<string, number>()
     const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
 
-    allData.forEach((fileData) => {
-        fileData.forEach((track) => {
-            const trackTime = new Date(track.ts).getTime()
-            if (cutoff === 0 || trackTime >= cutoff) {
-                if (!track.master_metadata_album_artist_name || !track.ms_played) return
+    allData.forEach((track) => {
+        const trackTime = new Date(track.ts).getTime()
+        if (cutoff === 0 || trackTime >= cutoff) {
+            if (!track.master_metadata_album_artist_name || !track.ms_played) return
 
-                const prev = artistMap.get(track.master_metadata_album_artist_name) || 0
-                artistMap.set(track.master_metadata_album_artist_name, prev + track.ms_played)
-            }
-        })
+            const prev = artistMap.get(track.master_metadata_album_artist_name) || 0
+            artistMap.set(track.master_metadata_album_artist_name, prev + track.ms_played)
+        }
     })
 
     const sorted = Array.from(artistMap.entries())
@@ -285,15 +281,13 @@ function calcGraphData() {
     const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
     const tempMap = new Map<string, number>()
 
-    allData.forEach((fileData) => {
-        fileData.forEach((track) => {
-            const trackTime = new Date(track.ts).getTime()
-            if (cutoff === 0 || trackTime >= cutoff) {
-                const day = new Date(track.ts).toISOString().slice(0, 10)
-                const prev = tempMap.get(day) || 0
-                tempMap.set(day, prev + track.ms_played)
-            }
-        })
+    allData.forEach((track) => {
+        const trackTime = new Date(track.ts).getTime()
+        if (cutoff === 0 || trackTime >= cutoff) {
+            const day = new Date(track.ts).toISOString().slice(0, 10)
+            const prev = tempMap.get(day) || 0
+            tempMap.set(day, prev + track.ms_played)
+        }
     })
 
     const finalMap = new Map<string, number>()
@@ -305,21 +299,19 @@ function calcGraphData() {
 function calcCalendarData() {
     const tempMapPerDay = new Map<string, Map<string, number>>()
 
-    allData.forEach((fileData) => {
-        fileData.forEach((track) => {
-            const day = new Date(track.ts).toISOString().slice(0, 10)
-            const artist = track.master_metadata_album_artist_name || 'Unknown'
-            const minutes = (track.ms_played || 0) / 1000 / 60
+    allData.forEach((track) => {
+        const day = new Date(track.ts).toISOString().slice(0, 10)
+        const artist = track.master_metadata_album_artist_name || 'Unknown'
+        const minutes = (track.ms_played || 0) / 1000 / 60
 
-            let artistMap = tempMapPerDay.get(day)
-            if (!artistMap) {
-                artistMap = new Map<string, number>()
-                tempMapPerDay.set(day, artistMap)
-            }
+        let artistMap = tempMapPerDay.get(day)
+        if (!artistMap) {
+            artistMap = new Map<string, number>()
+            tempMapPerDay.set(day, artistMap)
+        }
 
-            const prevMinutes = artistMap.get(artist) || 0
-            artistMap.set(artist, prevMinutes + minutes)
-        })
+        const prevMinutes = artistMap.get(artist) || 0
+        artistMap.set(artist, prevMinutes + minutes)
     })
 
     const sortedPerDay = new Map<string, Map<string, number>>()
