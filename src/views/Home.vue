@@ -94,7 +94,7 @@
                                             <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
                                             <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
                                             <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
-                                            }}</td>
+                                                    }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -186,6 +186,7 @@ const listeningPerDay = ref(new Map<string, number>())
 const listeningPerDayPerArtist = ref(new Map<string, Map<string, number>>())
 const showAll = ref(false)
 const selectedDay = ref(new Date())
+let lastDate: number;
 
 
 const displayedArtists = computed(() => (showAll.value ? topArtists.value : topArtists.value.slice(0, 10)))
@@ -217,6 +218,9 @@ async function handleFolder(event: Event) {
     )
 
     allData = dataArray
+    const lastDay = allData[allData.length - 1]
+    const lastTrack = lastDay[lastDay.length - 1]
+    lastDate = new Date(lastTrack.ts).getTime();
     showStats.value = true
     calculateStats()
     calculateTopArtists()
@@ -237,8 +241,7 @@ watch(listeningPerDayPerArtist, () => {
 
 function calculateStats() {
     let totalListened = 0
-    const now = Date.now()
-    const cutoff = time.value > 0 ? now - time.value * 24 * 60 * 60 * 1000 : 0
+    const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
 
     allData.forEach((fileData) => {
         fileData.forEach((track) => {
@@ -254,8 +257,7 @@ function calculateStats() {
 
 function calculateTopArtists() {
     const artistMap = new Map<string, number>()
-    const now = Date.now()
-    const cutoff = time.value > 0 ? now - time.value * 24 * 60 * 60 * 1000 : 0
+    const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
 
     allData.forEach((fileData) => {
         fileData.forEach((track) => {
@@ -280,8 +282,7 @@ function calculateTopArtists() {
 }
 
 function calcGraphData() {
-    const now = Date.now()
-    const cutoff = time.value > 0 ? now - time.value * 24 * 60 * 60 * 1000 : 0
+    const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
     const tempMap = new Map<string, number>()
 
     allData.forEach((fileData) => {
@@ -334,7 +335,7 @@ function calcCalendarData() {
         daysWithTotals.push([day, total])
     })
 
-    daysWithTotals.sort((a, b) => b[1] - a[1]) 
+    daysWithTotals.sort((a, b) => b[1] - a[1])
 
     const finalOrdered = new Map<string, Map<string, number>>()
     for (const [day] of daysWithTotals) {
