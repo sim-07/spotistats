@@ -65,6 +65,7 @@
                             <select v-model="time" class="p-2 rounded text-black">
                                 <option :value="30">1 month</option>
                                 <option :value="180">6 months</option>
+                                <option :value="currentYearDays">{{ new Date().getFullYear() }}</option>
                                 <option :value="365">1 year</option>
                                 <option :value="0">All</option>
                             </select>
@@ -93,7 +94,7 @@
                                             <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
                                             <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
                                             <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
-                                            }}</td>
+                                                    }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -187,6 +188,12 @@ const listeningPerDayPerArtist = ref(new Map<string, Map<string, number>>())
 const showAll = ref(false)
 const selectedDay = ref(new Date())
 let lastDate: number;
+const now = new Date()
+const startOfYear = new Date(now.getFullYear(), 0, 1)
+const currentYearDays = Math.floor((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24))
+console.log(startOfYear)
+console.log(currentYearDays)
+
 
 
 const displayedArtists = computed(() => (showAll.value ? topArtists.value : topArtists.value.slice(0, 10)))
