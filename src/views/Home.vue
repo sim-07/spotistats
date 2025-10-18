@@ -76,7 +76,7 @@
                         </div>
 
                         <h2 class="text-2xl mb-4 mt-20">Top artists</h2>
-                        <div class="mt-8 h-[800px] overflow-y-auto">
+                        <div class="mt-8 h-[80vh] overflow-y-auto">
 
                             <div class="overflow-auto">
                                 <table class="table-fixed w-full border-separate border-spacing-y-3">
@@ -109,7 +109,7 @@
 
 
                         <h2 class="text-2xl mb-4 mt-20">Top songs</h2>
-                        <div class="mt-8 h-[800px] overflow-y-auto">
+                        <div class="mt-8 h-[80vh] overflow-y-auto">
 
                             <div class="overflow-auto">
                                 <table class="table-fixed w-full border-separate border-spacing-y-3">
