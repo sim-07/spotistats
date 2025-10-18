@@ -99,7 +99,7 @@
                                 </table>
                             </div>
                         </div>
-                        <div v-if="topArtists.length > 10" class="mt-4">
+                        <div v-if="topArtists.length > 10" class="mt-8">
                             <button @click="showAll = !showAll"
                                 class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
                                 {{ showAll ? 'Show less' : 'View all' }}
@@ -134,7 +134,7 @@
                             </div>
 
                         </div>
-                        <div v-if="topArtists.length > 10" class="mt-4">
+                        <div v-if="topArtists.length > 10" class="mt-8">
                             <button @click="showAll = !showAll"
                                 class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
                                 {{ showAll ? 'Show less' : 'View all' }}
@@ -142,12 +142,12 @@
                         </div>
 
                         <!-- CHART -->
-                        <div class="mt-8 chart-wrapper mb-10">
+                        <div class="mt-16 chart-wrapper mb-10">
                             <LineChart :data="chartData" :options="chartOptions" />
                         </div>
 
                         <!-- CALENDAR -->
-                        <div class="mt-8">
+                        <div class="mt-16">
                             <div class="flex flex-col md:flex-row gap-4 w-full">
                                 <div class="flex-1 min-w-0">
                                     <VDatePicker v-model="selectedDay" mode="date" class="w-full" />
