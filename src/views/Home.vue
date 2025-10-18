@@ -75,10 +75,9 @@
                             </h1>
                         </div>
 
-                        <div class="mt-8">
-                            <h2 class="text-2xl mb-4">Top artists</h2>
+                        <h2 class="text-2xl mb-4 mt-20">Top artists</h2>
+                        <div class="mt-8 h-[800px] overflow-y-auto">
 
-                            <!-- TABLE -->
                             <div class="overflow-auto">
                                 <table class="table-fixed w-full border-separate border-spacing-y-3">
                                     <thead>
@@ -92,6 +91,41 @@
                                         <tr v-for="(item, idx) in displayedArtists" :key="item.artist"
                                             class="bg-[#222] rounded">
                                             <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
+                                            <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
+                                            <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
+                                                    }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div v-if="topArtists.length > 10" class="mt-4">
+                                <button @click="showAll = !showAll"
+                                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
+                                    {{ showAll ? 'Show less' : 'View all' }}
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <h2 class="text-2xl mb-4 mt-20">Top songs</h2>
+                        <div class="mt-8 h-[800px] overflow-y-auto">
+
+                            <div class="overflow-auto">
+                                <table class="table-fixed w-full border-separate border-spacing-y-3">
+                                    <thead>
+                                        <tr class="text-left text-gray-300">
+                                            <th class="px-4 py-3 w-12">#</th>
+                                            <th class="px-4 py-3">Songs</th>
+                                            <th class="px-4 py-3">Artist</th>
+                                            <th class="px-4 py-3 w-48">Minutes listened</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, idx) in displayedSongs" :key="item.song"
+                                            class="bg-[#222] rounded">
+                                            <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
+                                            <td class="px-4 py-3 align-top break-words">{{ item.song }}</td>
                                             <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
                                             <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
                                                     }}</td>
@@ -183,6 +217,7 @@ const time = ref(30)
 let allData: historyProps[] = []
 const totalListenedMinutes = ref(0)
 const topArtists = ref<{ artist: string; minutes: number }[]>([])
+const topSongs = ref<{ song: string; artist: string; minutes: number }[]>([])
 const listeningPerDay = ref(new Map<string, number>())
 const listeningPerDayPerArtist = ref(new Map<string, Map<string, number>>())
 const showAll = ref(false)
@@ -191,12 +226,11 @@ let lastDate: number;
 const now = new Date()
 const startOfYear = new Date(now.getFullYear(), 0, 1)
 const currentYearDays = Math.floor((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24))
-console.log(startOfYear)
-console.log(currentYearDays)
-
 
 
 const displayedArtists = computed(() => (showAll.value ? topArtists.value : topArtists.value.slice(0, 10)))
+const displayedSongs = computed(() => (showAll.value ? topSongs.value : topSongs.value.slice(0, 10)))
+
 
 async function handleFolder(event: Event) {
     const files = (event.target as HTMLInputElement).files
@@ -235,6 +269,7 @@ async function handleFolder(event: Event) {
     showStats.value = true
     calculateStats()
     calculateTopArtists()
+    calculateTopSongs()
     calcGraphData()
     calcCalendarData()
 }
@@ -242,6 +277,7 @@ async function handleFolder(event: Event) {
 watch(time, () => {
     calculateStats()
     calculateTopArtists()
+    calculateTopSongs()
     calcGraphData()
     calcCalendarData()
 })
@@ -282,6 +318,36 @@ function calculateTopArtists() {
         .sort((a, b) => b.minutes - a.minutes)
 
     topArtists.value = sorted
+}
+
+function calculateTopSongs() {
+    const songMap = new Map<string, { artist: string, ms: number }>()
+    const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
+
+    allData.forEach((track) => {
+        const trackTime = new Date(track.ts).getTime()
+        if (cutoff === 0 || trackTime >= cutoff) {
+            if (!track.master_metadata_album_artist_name || !track.ms_played) return
+
+            const key = track.master_metadata_track_name
+            const prev = songMap.get(key)
+
+            songMap.set(key, {
+                artist: track.master_metadata_album_artist_name,
+                ms: (prev?.ms || 0) + track.ms_played
+            })
+        }
+    })
+
+    const sorted = Array.from(songMap.entries())
+        .map(([song, { artist, ms }]) => ({
+            song,
+            artist,
+            minutes: Math.floor(ms / 1000 / 60),
+        }))
+        .sort((a, b) => b.minutes - a.minutes)
+
+    topSongs.value = sorted
 }
 
 function calcGraphData() {
