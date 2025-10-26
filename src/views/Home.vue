@@ -247,7 +247,7 @@ const showAllSongs = ref(false)
 const selectedDay = ref(new Date())
 let lastDate: number;
 const startOfYear = new Date(new Date().getFullYear(), 0, 1)
-let currentYearDays; // Lo calcolo dall'ultima traccia registrata, non da oggi
+let currentYearDays: any; // Lo calcolo dall'ultima traccia registrata, non da oggi
 
 
 const displayedArtists = computed(() => (showAllArtists.value ? topArtists.value : topArtists.value.slice(0, 10)))
