@@ -92,6 +92,11 @@
                                 Unique songs:
                                 <span class="text-2xl font-bold ml-2">{{ topSongs.length }}</span> songs
                             </h2>
+
+                            <h2 class="text-lg font-semibold">
+                                Average song duration:
+                                <span class="text-2xl font-bold ml-2">{{ avgSongDuration }}</span> min
+                            </h2>
                         </div>
 
                         <h2 class="text-2xl mb-4 mt-20">Top artists</h2>
@@ -247,7 +252,8 @@ const showAllSongs = ref(false)
 const selectedDay = ref(new Date())
 let lastDate: number;
 const startOfYear = new Date(new Date().getFullYear(), 0, 1)
-let currentYearDays: any; // Lo calcolo dall'ultima traccia registrata, non da oggi
+let currentYearDays: number; // Lo calcolo dall'ultima traccia registrata, non da oggi
+let avgSongDuration: number;
 
 
 const displayedArtists = computed(() => (showAllArtists.value ? topArtists.value : topArtists.value.slice(0, 10)))
@@ -290,17 +296,17 @@ async function handleFolder(event: Event) {
 
     selectedDay.value = new Date(lastTrack.ts);
     showStats.value = true
+    calculateTopSongs()
     calculateStats()
     calculateTopArtists()
-    calculateTopSongs()
     calcGraphData()
     calcCalendarData()
 }
 
 watch(time, () => {
-    calculateStats()
     calculateTopArtists()
     calculateTopSongs()
+    calculateStats()
     calcGraphData()
     calcCalendarData()
 })
@@ -308,15 +314,18 @@ watch(time, () => {
 function calculateStats() {
     let totalListened = 0
     const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
+    let tracks = 0; 
 
     allData.forEach((track) => {
         const trackTime = new Date(track.ts).getTime()
         if (cutoff === 0 || trackTime >= cutoff) {
             totalListened += track.ms_played
+            tracks++;
         }
     })
 
     totalListenedMinutes.value = Math.floor(totalListened / 1000 / 60)
+    avgSongDuration = Number(((totalListened / 1000 / 60) / tracks).toFixed(2))
 }
 
 function calculateTopArtists() {
