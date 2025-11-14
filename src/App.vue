@@ -3,6 +3,7 @@
     <router-view />
 </template>
 
+
 <script setup lang="ts">
 // No imports needed here unless you want global things
 </script>

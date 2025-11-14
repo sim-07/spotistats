@@ -1,66 +1,21 @@
 <template>
     <div class="flex flex-col min-h-screen bg-[#1a1a1a] text-white antialiased">
-        <header class="bg-[#1a1a1a]">
-            <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                <nav class="flex items-center justify-between h-16 relative mt-3">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-9 h-9 rounded-lg flex items-center justify-center bg-emerald-500 text-white shadow-sm">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                                    stroke-width="1.5" />
-                            </svg>
-                        </div>
-                        <span class="text-lg font-semibold tracking-tight text-white">Spotify Stats</span>
-                    </div>
-
-                    <div class="items-center gap-6 text-sm text-white">
-                        <a href="https://www.spotify.com/us/account/privacy/" target="_blank"
-                            class="hover:text-emerald-400">How to get history</a>
-                    </div>
-                </nav>
-            </div>
-        </header>
+        <Header></Header>
 
         <main class="flex flex-1 flex-col justify-center">
             <section class="mx-auto px-6 py-20 max-w-5xl">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                    <div v-if="!showStats" class="lg:col-span-12">
-                        <h1 class="text-4xl sm:text-5xl leading-tight font-extrabold text-gray-300 mb-6">
-                            Explore your Spotify listening history
-                        </h1>
-
-                        <p class="text-base text-gray-400 max-w-xl mb-8">
-                            Upload the folder "Spotify Extended Streaming History" already extracted (NOT zip) — it will
-                            be processed locally in your browser.
-                        </p>
-
-                        <div class="flex items-start">
-                            <label
-                                class="relative inline-flex items-center justify-center px-6 py-3 rounded-lg bg-emerald-600 text-white font-semibold shadow-lg hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-400 cursor-pointer transition transform hover:-translate-y-0.5"
-                                role="button" aria-label="Upload Spotify history">
-                                <input @change="handleFolder" type="file" webkitdirectory directory multiple
-                                    class="sr-only" />
-                                <span class="flex items-center gap-3">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                                        <path d="M12 3v12" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M8 7l4-4 4 4" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M20 21H4" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    Upload history
-                                </span>
-                            </label>
-                        </div>
-
-                        <p class="text-xs text-gray-500 mt-3">
-                            We process the file in your browser — nothing is uploaded to any server.
-                        </p>
+                    <div v-if="!showStats">
+                        <SelectFolder :handleFolder="handleFolder" />
                     </div>
 
                     <div v-if="showStats" class="lg:col-span-12 mt-4 p-6 text-white mb-10">
+                        <!-- <Stats :time="time" :selectedDay="selectedDay" :showAllArtists="showAllArtists"
+                            :showAllSongs="showAllSongs" :totalListenedMinutes="totalListenedMinutes"
+                            :avgSongDuration="avgSongDuration" :topArtists="topArtists" :topSongs="topSongs"
+                            :displayedArtists="displayedArtists" :displayedSongs="displayedSongs" :chartData="chartData"
+                            :chartOptions="chartOptions" :listeningPerDayPerArtist="listeningPerDayPerArtist" :currentYearDays="currentYearDays" /> -->
+
                         <div class="flex items-center gap-5">
                             <select v-model="time" class="p-2 rounded text-black">
                                 <option :value="30">1 month</option>
@@ -116,7 +71,7 @@
                                             <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
                                             <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
                                             <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
-                                            }}</td>
+                                                    }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -150,7 +105,7 @@
                                             <td class="px-4 py-3 align-top break-words">{{ item.song }}</td>
                                             <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
                                             <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1'
-                                            }}</td>
+                                                    }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -231,6 +186,10 @@ import { computed, ref, watch } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler } from 'chart.js'
 import type { ChartData, ChartOptions } from 'chart.js'
+import SelectFolder from '../components/SelectFolder.vue'
+//import Stats from '../components/Stats.vue'
+import Header from '../components/Header.vue'
+
 
 interface historyProps {
     ts: string
@@ -314,7 +273,7 @@ watch(time, () => {
 function calculateStats() {
     let totalListened = 0
     const cutoff = time.value > 0 ? lastDate - time.value * 24 * 60 * 60 * 1000 : 0
-    let tracks = 0; 
+    let tracks = 0;
 
     allData.forEach((track) => {
         const trackTime = new Date(track.ts).getTime()
