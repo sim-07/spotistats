@@ -4,7 +4,7 @@
             :hue-shift="0"
             :noise-intensity="0"
             :scanline-intensity="0"
-            :speed="0.5"
+            :speed="1.0"
             :scanline-frequency="0"
             :warp-amount="0"
             :resolution-scale="1"
