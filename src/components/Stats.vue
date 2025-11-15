@@ -1,6 +1,6 @@
 <template>
-    <!-- <div class="flex items-center gap-5">
-        <select v-model="time" class="p-2 rounded text-black">
+    <div class="flex items-center gap-5">
+        <select v-model="time" class="p-2 rounded text-white">
             <option :value="30">1 month</option>
             <option :value="180">6 months</option>
             <option :value="currentYearDays">{{ new Date().getFullYear() }}</option>
@@ -9,26 +9,31 @@
         </select>
     </div>
 
-    <h1 class="text-2xl font-semibold mt-10">Summary</h1>
+    <h1 class="mt-20 mb-7 font-bold">Total listened (minutes):</h1>
+    <h2 class="text-lg font-semibold mb-15">
+        <Counter
+            :value="totalListenedMinutes"
+            :places="computedPlaces"
+            :fontSize="80"
+            :padding="5"
+            :gap="10"
+            textColor="white"
+            :fontWeight="1000"
+            gradientFrom="transparent"
+        />
+        
+    </h2>
+    <div class="mt-6 bg-[#2d2d2d] p-5 rounded-md space-y-4 ">
 
-    <div class="mt-6 bg-[#2d2d2d] p-5 rounded-md space-y-4">
-        <h2 class="text-lg font-semibold">
-            Total listened:
-            <span class="text-2xl font-bold ml-2">{{ totalListenedMinutes }}</span> minutes =
-            <span class="text-2xl font-bold ml-2">{{ Math.floor(totalListenedMinutes / 60) }}</span>
-            hours =
-            <span class="text-2xl font-bold ml-2">{{ Math.floor(totalListenedMinutes / 60 / 24)
-            }}</span> days
-        </h2>
 
         <h2 class="text-lg font-semibold">
             Unique artists:
-            <span class="text-2xl font-bold ml-2">{{ topArtists.length }}</span> artists
+            <span class="text-2xl font-bold ml-2">{{ props.topArtists.length }}</span> artists
         </h2>
 
         <h2 class="text-lg font-semibold">
             Unique songs:
-            <span class="text-2xl font-bold ml-2">{{ topSongs.length }}</span> songs
+            <span class="text-2xl font-bold ml-2">{{ props.topSongs.length }}</span> songs
         </h2>
 
         <h2 class="text-lg font-semibold">
@@ -38,7 +43,7 @@
     </div>
 
     <h2 class="text-2xl mb-4 mt-20">Top artists</h2>
-    <div class="mt-8 h-[715px] overflow-y-auto bg-[#2d2d2d] p-5 rounded-md">
+    <div class="mt-8 h-[715px] overflow-y-auto bg-[#2d2d2d] p-5 rounded-md min-w-[370px]">
         <div class="overflow-auto">
             <table class="table-fixed w-full border-separate border-spacing-y-3">
                 <thead>
@@ -51,14 +56,14 @@
                 <tbody>
                     <tr v-for="(item, idx) in displayedArtists" :key="item.artist" class="bg-[#222] rounded">
                         <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
-                        <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
+                        <td class="px-4 py-3 align-top">{{ item.artist }}</td>
                         <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1' }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    <div v-if="topArtists.length > 10" class="mt-4">
+    <div v-if="props.topArtists.length > 10" class="mt-4">
         <button @click="showAllArtists = !showAllArtists"
             class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
             {{ showAllArtists ? 'Show less' : 'View all' }}
@@ -91,7 +96,7 @@
         </div>
 
     </div>
-    <div v-if="topSongs.length > 10" class="mt-4">
+    <div v-if="props.topSongs.length > 10" class="mt-4">
         <button @click="showAllSongs = !showAllSongs"
             class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
             {{ showAllSongs ? 'Show less' : 'View all' }}
@@ -133,30 +138,60 @@
             </div>
         </div>
 
-    </div> -->
+    </div>
 
 </template>
 
 <script setup lang="ts">
-// const emit = defineEmits<{
-//   (e: 'update:time', value: number): void
-// }>()
+import { computed, ref } from "vue"
+import Counter from '../DesignComponent/Counter.vue'
 
-// defineProps<{
-//     time: number
-//     selectedDay: Date
-//     showAllArtists: boolean
-//     showAllSongs: boolean
-//     currentYearDays: number
-//     totalListenedMinutes: number
-//     avgSongDuration: number
-//     topArtists: { artist: string; minutes: number }[]
-//     topSongs: { song: string; artist: string; minutes: number }[]
-//     displayedArtists: { artist: string; minutes: number }[]
-//     displayedSongs: { song: string; artist: string; minutes: number }[]
-//     chartData: any
-//     chartOptions: any
-//     listeningPerDayPerArtist: Map<string, Map<string, number>>
-// }>()
+const props = defineProps<{
+    time: number
+    selectedDay: Date
+    currentYearDays: number
+    totalListenedMinutes: number
+    avgSongDuration: number
+    topArtists: { artist: string; minutes: number }[]
+    topSongs: { song: string; artist: string; minutes: number }[]
+    chartData: any
+    chartOptions: any
+    listeningPerDayPerArtist: Map<string, Map<string, number>>
+}>()
 
+const computedPlaces = computed(() => {
+  const val = props.totalListenedMinutes;
+  if (val >= 100000) return [100000, 10000, 1000, 100, 10, 1];
+  if (val >= 10000) return [10000, 1000, 100, 10, 1];
+  if (val >= 1000) return [1000, 100, 10, 1];
+  if (val >= 100) return [100, 10, 1];
+  if (val >= 10) return [10, 1];
+  return [1];
+});
+
+const showAllArtists = ref(false)
+const showAllSongs = ref(false)
+
+const displayedArtists = computed(() =>
+    showAllArtists.value ? props.topArtists : props.topArtists.slice(0, 10)
+)
+
+const displayedSongs = computed(() =>
+    showAllSongs.value ? props.topSongs : props.topSongs.slice(0, 10)
+)
+
+const emit = defineEmits<{
+    (e: 'update:time', value: number): void
+    (e: 'update:selectedDay', value: Date): void
+}>()
+
+const time = computed({
+    get: () => props.time,
+    set: (val: number) => emit('update:time', val)
+})
+
+const selectedDay = computed({
+    get: () => props.selectedDay,
+    set: (val: Date) => emit('update:selectedDay', val)
+})
 </script>
