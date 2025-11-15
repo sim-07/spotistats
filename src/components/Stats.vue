@@ -7,22 +7,19 @@
             <option :value="365">1 year</option>
             <option :value="0">All</option>
         </select>
+        <i class="pi pi-pencil cursor-pointer" style="font-size: 0.9rem"></i>
+
     </div>
 
-    <h1 class="mt-20 mb-7 font-bold">Total listened (minutes):</h1>
-    <h2 class="text-lg font-semibold mb-15">
-        <Counter
-            :value="totalListenedMinutes"
-            :places="computedPlaces"
-            :fontSize="80"
-            :padding="5"
-            :gap="10"
-            textColor="white"
-            :fontWeight="1000"
-            gradientFrom="transparent"
-        />
-        
-    </h2>
+    <div class="mt-16 mb-10 flex gap-15">
+        <h1 class="mt-7 mb-7 font-bold text-2xl">Total listened (minutes):</h1>
+        <h2 class="text-lg font-semibold mb-15">
+            <Counter :value="totalListenedMinutes" :places="computedPlaces" :fontSize="70" :padding="5" :gap="10"
+                textColor="white" :fontWeight="1000" gradientFrom="transparent" />
+
+        </h2>
+    </div>
+
     <div class="mt-6 bg-[#2d2d2d] p-5 rounded-md space-y-4 ">
 
 
@@ -145,6 +142,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import Counter from '../DesignComponent/Counter.vue'
+import 'primeicons/primeicons.css'
+
 
 const props = defineProps<{
     time: number
@@ -160,13 +159,12 @@ const props = defineProps<{
 }>()
 
 const computedPlaces = computed(() => {
-  const val = props.totalListenedMinutes;
-  if (val >= 100000) return [100000, 10000, 1000, 100, 10, 1];
-  if (val >= 10000) return [10000, 1000, 100, 10, 1];
-  if (val >= 1000) return [1000, 100, 10, 1];
-  if (val >= 100) return [100, 10, 1];
-  if (val >= 10) return [10, 1];
-  return [1];
+    const val = props.totalListenedMinutes;
+    if (val >= 100000) return [100000, 10000, 1000, 100, 10, 1];
+    if (val >= 10000) return [10000, 1000, 100, 10, 1];
+    if (val >= 1000) return [1000, 100, 10, 1];
+    if (val >= 100) return [100, 10, 1];
+    return [10, 1];
 });
 
 const showAllArtists = ref(false)
