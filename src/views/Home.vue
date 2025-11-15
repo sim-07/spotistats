@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Line } from 'vue-chartjs'
+//import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler } from 'chart.js'
 import type { ChartData, ChartOptions } from 'chart.js'
 import SelectFolder from '../components/SelectFolder.vue'
@@ -258,7 +258,7 @@ function calcCalendarData() {
 
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler)
-const LineChart = Line
+//const LineChart = Line
 
 const chartData = computed<ChartData<'line', number[], string>>(() => {
     const sortedDays = Array.from(listeningPerDay.value.keys()).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
