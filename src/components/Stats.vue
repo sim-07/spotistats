@@ -7,17 +7,17 @@
             <option :value="365">1 year</option>
             <option :value="0">All</option>
         </select>
-        <i class="pi pi-pencil cursor-pointer" style="font-size: 0.9rem"></i>
+        <i class="pi pi-pencil cursor-pointer" style="font-size: 0.9rem" @click="customDateDialog = false"></i>
 
     </div>
 
     <div class="mt-16 mb-10 flex gap-15">
         <h1 class="mt-7 mb-7 font-bold text-2xl">Total listened (minutes):</h1>
-        <h2 class="text-lg font-semibold mb-15">
-            <Counter :value="totalListenedMinutes" :places="computedPlaces" :fontSize="70" :padding="5" :gap="10"
-                textColor="white" :fontWeight="1000" gradientFrom="transparent" />
+        <h1 class="text-4xl font-semibold mt-5 mb-15">
 
-        </h2>
+            {{ totalListenedMinutes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+ }}
+        </h1>
     </div>
 
     <div class="mt-6 bg-[#2d2d2d] p-5 rounded-md space-y-4 ">
@@ -84,8 +84,8 @@
                 <tbody>
                     <tr v-for="(item, idx) in displayedSongs" :key="item.song" class="bg-[#222] rounded">
                         <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
-                        <td class="px-4 py-3 align-top break-words">{{ item.song }}</td>
-                        <td class="px-4 py-3 align-top break-words">{{ item.artist }}</td>
+                        <td class="px-4 py-3 align-top wrap-break-word">{{ item.song }}</td>
+                        <td class="px-4 py-3 align-top wrap-break-word">{{ item.artist }}</td>
                         <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1' }}</td>
                     </tr>
                 </tbody>
@@ -101,10 +101,12 @@
     </div>
 
     <div class="mt-10 bg-[#2d2d2d] p-5 rounded-md">
+        <!--CHART-->
         <div class="mt-16 chart-wrapper mb-10">
             <LineChart :data="chartData" :options="chartOptions" />
         </div>
 
+        <!--CALENDAR-->
         <div class="mt-16">
             <div class="flex flex-col md:flex-row gap-4 w-full">
                 <div class="flex-1 min-w-0">
@@ -141,9 +143,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import Counter from '../DesignComponent/Counter.vue'
+import { Line } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler, type ChartData, type ChartOptions } from 'chart.js'
 import 'primeicons/primeicons.css'
 
+const LineChart = Line
+
+ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement)
 
 const props = defineProps<{
     time: number
@@ -153,22 +159,61 @@ const props = defineProps<{
     avgSongDuration: number
     topArtists: { artist: string; minutes: number }[]
     topSongs: { song: string; artist: string; minutes: number }[]
-    chartData: any
-    chartOptions: any
+    listeningPerDay: Map<string, number>
     listeningPerDayPerArtist: Map<string, Map<string, number>>
 }>()
 
-const computedPlaces = computed(() => {
-    const val = props.totalListenedMinutes;
-    if (val >= 100000) return [100000, 10000, 1000, 100, 10, 1];
-    if (val >= 10000) return [10000, 1000, 100, 10, 1];
-    if (val >= 1000) return [1000, 100, 10, 1];
-    if (val >= 100) return [100, 10, 1];
-    return [10, 1];
-});
+
+ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler)
+
+const chartData = computed<ChartData<'line', number[], string>>(() => {
+    const sortedDays = Array.from(props.listeningPerDay.keys()).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+    const data = sortedDays.map((day) => props.listeningPerDay.get(day) || 0)
+    const labels = sortedDays.map((d) => {
+        const dt = new Date(d)
+        const dd = dt.getDate().toString().padStart(2, '0')
+        const mm = (dt.getMonth() + 1).toString().padStart(2, '0')
+        return `${dd}/${mm}/${dt.getFullYear()}`
+    })
+
+    return {
+        labels,
+        datasets: [
+            {
+                label: 'Minutes listened',
+                data,
+                borderColor: '#34d399',
+                backgroundColor: 'rgba(52, 211, 153, 0.18)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 2,
+            },
+        ],
+    }
+})
+
+const chartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false },
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: { stepSize: 10 },
+        },
+        x: {
+            ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+        },
+    },
+}
+
 
 const showAllArtists = ref(false)
 const showAllSongs = ref(false)
+const customDateDialog = ref(false)
 
 const displayedArtists = computed(() =>
     showAllArtists.value ? props.topArtists : props.topArtists.slice(0, 10)

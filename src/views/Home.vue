@@ -12,8 +12,8 @@
                     <div v-if="showStats" class="lg:col-span-12 mt-4 p-6 text-white mb-10">
                         <Stats v-model:time="time" v-model:selectedDay="selectedDay"
                             :totalListenedMinutes="totalListenedMinutes" :avgSongDuration="avgSongDuration"
-                            :topArtists="topArtists" :topSongs="topSongs" :chartData="chartData"
-                            :chartOptions="chartOptions" :listeningPerDayPerArtist="listeningPerDayPerArtist"
+                            :topArtists="topArtists" :topSongs="topSongs"
+                            :listeningPerDayPerArtist="listeningPerDayPerArtist" :listeningPerDay="listeningPerDay"
                             :currentYearDays="currentYearDays" />
 
 
@@ -42,10 +42,7 @@
 </style>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-//import { Line } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler } from 'chart.js'
-import type { ChartData, ChartOptions } from 'chart.js'
+import { ref, watch } from 'vue'
 import SelectFolder from '../components/SelectFolder.vue'
 import Stats from '../components/Stats.vue'
 import Header from '../components/Header.vue'
@@ -257,52 +254,7 @@ function calcCalendarData() {
 }
 
 
-ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler)
-//const LineChart = Line
 
-const chartData = computed<ChartData<'line', number[], string>>(() => {
-    const sortedDays = Array.from(listeningPerDay.value.keys()).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-    const data = sortedDays.map((day) => listeningPerDay.value.get(day) || 0)
-    const labels = sortedDays.map((d) => {
-        const dt = new Date(d)
-        const dd = dt.getDate().toString().padStart(2, '0')
-        const mm = (dt.getMonth() + 1).toString().padStart(2, '0')
-        return `${dd}/${mm}/${dt.getFullYear()}`
-    })
-
-    return {
-        labels,
-        datasets: [
-            {
-                label: 'Minutes listened',
-                data,
-                borderColor: '#34d399',
-                backgroundColor: 'rgba(52, 211, 153, 0.18)',
-                fill: true,
-                tension: 0.3,
-                pointRadius: 2,
-            },
-        ],
-    }
-})
-
-const chartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: { display: false },
-        tooltip: { mode: 'index', intersect: false },
-    },
-    scales: {
-        y: {
-            beginAtZero: true,
-            ticks: { stepSize: 10 },
-        },
-        x: {
-            ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
-        },
-    },
-}
 
 
 </script>
