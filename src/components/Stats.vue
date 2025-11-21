@@ -137,6 +137,10 @@
             </div>
         </div>
 
+        <Dialog>
+            <h1>AAA</h1>
+        </Dialog>
+
     </div>
 
 </template>
@@ -146,6 +150,7 @@ import { computed, ref } from "vue"
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler, type ChartData, type ChartOptions } from 'chart.js'
 import 'primeicons/primeicons.css'
+import Dialog from './Dialog.vue'
 
 const LineChart = Line
 
