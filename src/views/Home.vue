@@ -15,8 +15,6 @@
                             :topArtists="topArtists" :topSongs="topSongs"
                             :listeningPerDayPerArtist="listeningPerDayPerArtist" :listeningPerDay="listeningPerDay"
                             :currentYearDays="currentYearDays" />
-
-
                     </div>
 
                 </div>
