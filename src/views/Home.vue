@@ -67,6 +67,7 @@ const startOfYear = new Date(new Date().getFullYear(), 0, 1)
 let currentYearDays: number; // Lo calcolo dall'ultima traccia registrata, non da oggi
 let avgSongDuration: number;
 
+
 async function handleFolder(event: Event) {
     const files = (event.target as HTMLInputElement).files
     if (!files || files.length === 0) return
