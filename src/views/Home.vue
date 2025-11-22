@@ -45,7 +45,6 @@ import SelectFolder from '../components/SelectFolder.vue'
 import Stats from '../components/Stats.vue'
 import Header from '../components/Header.vue'
 
-
 interface historyProps {
     ts: string
     ms_played: number
