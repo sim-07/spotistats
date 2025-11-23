@@ -68,7 +68,6 @@ let currentYearDays: number; // Lo calcolo dall'ultima traccia registrata, non d
 let avgSongDuration: number;
 
 
-
 async function handleFolder(event: Event) {
     const files = (event.target as HTMLInputElement).files
     if (!files || files.length === 0) return
