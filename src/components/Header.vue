@@ -10,13 +10,13 @@
                                 stroke-width="1.5" />
                         </svg>
                     </div>
-                    <span class="text-lg font-semibold tracking-tight text-white">Spotify Stats</span>
+                    <span class="text-lg font-semibold tracking-tight text-white">Music Stats</span>
                 </div>
 
-                <div class="ml-5 items-center gap-6 text-sm text-white">
+                <!-- <div class="ml-5 items-center gap-6 text-sm text-white">
                     <a href="https://www.spotify.com/us/account/privacy/" target="_blank"
                         class="hover:text-emerald-400 md:ml-5">How to get history</a>
-                </div>
+                </div> -->
             </nav>
         </div>
     </div>

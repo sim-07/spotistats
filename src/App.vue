@@ -1,5 +1,5 @@
 <template>
-    <!-- router-view will render the current page (Home, Stats, etc.) -->
+    <!-- router-view will render the current page (Spotify, Stats, etc.) -->
     <router-view />
 </template>
 

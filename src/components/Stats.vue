@@ -1,14 +1,15 @@
 <template>
-    <div class="flex items-center gap-5">
-        <select v-model="time" class="p-2 rounded text-white">
-            <option :value="30">1 month</option>
-            <option :value="180">6 months</option>
-            <option :value="currentYearDays">{{ new Date().getFullYear() }}</option>
-            <option :value="365">1 year</option>
-            <option :value="0">All</option>
+    <div class="flex flex-col gap-1.5 w-fit">
+        <label class="text-xs text-gray-400">Timeframe calculated from last track</label>
+        <select v-model="time"
+            class="p-2 rounded bg-[#2a2a2a] text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600">
+            <option :value="30" class="bg-[#2a2a2a] text-white">1 month</option>
+            <option :value="180" class="bg-[#2a2a2a] text-white">6 months</option>
+            <option :value="currentYearDays" class="bg-[#2a2a2a] text-white">{{ dataYear }}</option>
+            <option :value="365" class="bg-[#2a2a2a] text-white">1 year</option>
+            <option :value="0" class="bg-[#2a2a2a] text-white">All</option>
         </select>
-        <i class="pi pi-pencil cursor-pointer" style="font-size: 0.9rem" @click="customDateDialog = false"></i>
-
+        <!-- <i class="pi pi-pencil cursor-pointer" style="font-size: 0.9rem" @click="customDateDialog = false"></i> -->
     </div>
 
     <div class="mt-16 mb-10 flex gap-15">
@@ -16,7 +17,7 @@
         <h1 class="text-4xl font-semibold mt-5 mb-15">
 
             {{ totalListenedMinutes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
- }}
+            }}
         </h1>
     </div>
 
@@ -137,9 +138,9 @@
             </div>
         </div>
 
-        <Dialog>
+        <!-- <Dialog>
             <h1>AAA</h1>
-        </Dialog>
+        </Dialog> -->
 
     </div>
 
@@ -150,7 +151,7 @@ import { computed, ref } from "vue"
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler, type ChartData, type ChartOptions } from 'chart.js'
 import 'primeicons/primeicons.css'
-import Dialog from './Dialog.vue'
+//import Dialog from './Dialog.vue'
 
 const LineChart = Line
 
@@ -160,6 +161,7 @@ const props = defineProps<{
     time: number
     selectedDay: Date
     currentYearDays: number
+    dataYear: number
     totalListenedMinutes: number
     avgSongDuration: number
     topArtists: { artist: string; minutes: number }[]
@@ -218,7 +220,7 @@ const chartOptions: ChartOptions<'line'> = {
 
 const showAllArtists = ref(false)
 const showAllSongs = ref(false)
-const customDateDialog = ref(false)
+//const customDateDialog = ref(false)
 
 const displayedArtists = computed(() =>
     showAllArtists.value ? props.topArtists : props.topArtists.slice(0, 10)
