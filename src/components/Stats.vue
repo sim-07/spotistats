@@ -1,149 +1,150 @@
 <template>
-    <div class="flex flex-col gap-1.5 w-fit">
+    <div class="flex flex-col gap-1.5 w-full sm:w-fit">
         <label class="text-xs text-gray-400">Timeframe calculated from last track</label>
         <select v-model="time"
-            class="p-2 rounded bg-[#2a2a2a] text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600">
+            class="p-2 rounded bg-[#2a2a2a] text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600 w-full sm:w-auto">
             <option :value="30" class="bg-[#2a2a2a] text-white">1 month</option>
             <option :value="180" class="bg-[#2a2a2a] text-white">6 months</option>
             <option :value="currentYearDays" class="bg-[#2a2a2a] text-white">{{ dataYear }}</option>
             <option :value="365" class="bg-[#2a2a2a] text-white">1 year</option>
             <option :value="0" class="bg-[#2a2a2a] text-white">All</option>
         </select>
-        <!-- <i class="pi pi-pencil cursor-pointer" style="font-size: 0.9rem" @click="customDateDialog = false"></i> -->
     </div>
 
-    <div class="mt-16 mb-10 flex gap-15">
-        <h1 class="mt-7 mb-7 font-bold text-2xl">{{ props.service == "spotify" ? "Total listened (minutes):" : "Total listened (esteemed minutes):"}}</h1>
-        <h1 class="text-4xl font-semibold mt-5 mb-15">
-
-            {{ totalListenedMinutes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-            }}
+    <div class="mt-8 mb-6 flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-6">
+        <h1 class="font-bold text-xl sm:text-2xl text-gray-200">
+            {{ props.service === "spotify" ? "Total listened (minutes):" : "Total listened (estimated minutes):" }}
+        </h1>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white">
+            {{ totalListenedMinutes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") }}
         </h1>
     </div>
 
-    <div class="mt-6 bg-[#2d2d2d] p-5 rounded-md space-y-4 ">
-
-
-        <h2 class="text-lg font-semibold">
+    <div class="mt-6 bg-[#2d2d2d] p-4 sm:p-5 rounded-lg space-y-3 sm:space-y-4">
+        <h2 class="text-base sm:text-lg font-semibold">
             Unique artists:
-            <span class="text-2xl font-bold ml-2">{{ props.topArtists.length }}</span> artists
+            <span class="text-xl sm:text-2xl font-bold ml-1 sm:ml-2 text-emerald-400">{{ props.topArtists.length }}</span> artists
         </h2>
 
-        <h2 class="text-lg font-semibold">
+        <h2 class="text-base sm:text-lg font-semibold">
             Unique songs:
-            <span class="text-2xl font-bold ml-2">{{ props.topSongs.length }}</span> songs
+            <span class="text-xl sm:text-2xl font-bold ml-1 sm:ml-2 text-emerald-400">{{ props.topSongs.length }}</span> songs
         </h2>
 
-        <h2 v-if="props.service == 'spotify'" class="text-lg font-semibold">
+        <h2 v-if="props.service === 'spotify'" class="text-base sm:text-lg font-semibold">
             Average song duration:
-            <span class="text-2xl font-bold ml-2">{{ avgSongDuration }}</span> min
+            <span class="text-xl sm:text-2xl font-bold ml-1 sm:ml-2 text-emerald-400">{{ avgSongDuration }}</span> min
         </h2>
     </div>
 
-    <h2 class="text-2xl mb-4 mt-20">Top artists</h2>
-    <div class="mt-8 h-[715px] overflow-y-auto bg-[#2d2d2d] p-5 rounded-md min-w-[370px]">
-        <div class="overflow-auto">
-            <table class="table-fixed w-full border-separate border-spacing-y-3">
+    <h2 class="text-xl sm:text-2xl mb-4 mt-12 sm:mt-20 font-bold">Top artists</h2>
+    <div class="mt-4 bg-[#2d2d2d] p-3 sm:p-5 rounded-lg">
+        <div class="overflow-x-auto max-h-[450px] sm:max-h-[600px] overflow-y-auto">
+            <table class="w-full min-w-[500px] border-separate border-spacing-y-2 text-sm sm:text-base table-fixed">
                 <thead>
-                    <tr class="text-left text-gray-300">
-                        <th class="px-4 py-3 w-12">#</th>
-                        <th class="px-4 py-3">Artist</th>
-                        <th class="px-4 py-3 w-48">{{ props.service == "spotify" ? "Minutes listened" : "Plays" }}</th>
+                    <tr class="text-left text-gray-400 text-xs sm:text-sm">
+                        <th class="px-2 sm:px-4 py-2 w-[10%]">#</th>
+                        <th class="px-2 sm:px-4 py-2 w-[60%]">Artist</th>
+                        <th class="px-2 sm:px-4 py-2 w-[30%]">
+                            {{ props.service === "spotify" ? "Minutes" : "Plays" }}
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(item, idx) in displayedArtists" :key="item.artist" class="bg-[#222] rounded">
-                        <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
-                        <td class="px-4 py-3 align-top">{{ item.artist }}</td>
-                        <td class="px-4 py-3 align-top">{{ item.val > 0 ? item.val : '<1' }}</td>
+                        <td class="px-2 sm:px-4 py-2.5 font-medium text-gray-400">{{ idx + 1 }}</td>
+                        <td class="px-2 sm:px-4 py-2.5 font-semibold truncate">{{ item.artist }}</td>
+                        <td class="px-2 sm:px-4 py-2.5 font-mono text-emerald-400 truncate">
+                            {{ item.val > 0 ? item.val : '<1' }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    <div v-if="props.topArtists.length > 10" class="mt-4">
+    <div v-if="props.topArtists.length > 10" class="mt-3">
         <button @click="showAllArtists = !showAllArtists"
-            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
+            class="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition text-sm">
             {{ showAllArtists ? 'Show less' : 'View all' }}
         </button>
     </div>
 
-
-    <h2 class="text-2xl mb-4 mt-20">Top songs</h2>
-    <div class="mt-8 h-[715px] overflow-y-auto bg-[#2d2d2d] p-5 rounded-md">
-
-        <div class="overflow-auto">
-            <table class="table-fixed w-full border-separate border-spacing-y-3">
+    <h2 class="text-xl sm:text-2xl mb-4 mt-12 sm:mt-20 font-bold">Top songs</h2>
+    <div class="mt-4 bg-[#2d2d2d] p-3 sm:p-5 rounded-lg">
+        <div class="overflow-x-auto max-h-[450px] sm:max-h-[600px] overflow-y-auto">
+            <table class="w-full min-w-[650px] border-separate border-spacing-y-2 text-sm sm:text-base table-fixed">
                 <thead>
-                    <tr class="text-left text-gray-300">
-                        <th class="px-4 py-3 w-12">#</th>
-                        <th class="px-4 py-3">Songs</th>
-                        <th class="px-4 py-3">Artist</th>
-                        <th class="px-4 py-3 w-48">{{ props.service == "spotify" ? "Minutes listened" : "Plays" }}</th>
+                    <tr class="text-left text-gray-400 text-xs sm:text-sm">
+                        <th class="px-2 sm:px-4 py-2 w-[8%]">#</th>
+                        <th class="px-2 sm:px-4 py-2 w-[42%]">Song</th>
+                        <th class="px-2 sm:px-4 py-2 w-[32%]">Artist</th>
+                        <th class="px-2 sm:px-4 py-2 w-[18%]">
+                            {{ props.service === "spotify" ? "Minutes" : "Plays" }}
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(item, idx) in displayedSongs" :key="item.song" class="bg-[#222] rounded">
-                        <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
-                        <td class="px-4 py-3 align-top wrap-break-word">{{ item.song }}</td>
-                        <td class="px-4 py-3 align-top wrap-break-word">{{ item.artist }}</td>
-                        <td class="px-4 py-3 align-top">{{ item.val > 0 ? item.val : '<1' }}</td>
+                        <td class="px-2 sm:px-4 py-2.5 font-medium text-gray-400">{{ idx + 1 }}</td>
+                        <td class="px-2 sm:px-4 py-2.5 font-semibold truncate">{{ item.song }}</td>
+                        <td class="px-2 sm:px-4 py-2.5 text-gray-300 truncate">{{ item.artist }}</td>
+                        <td class="px-2 sm:px-4 py-2.5 font-mono text-emerald-400 truncate">
+                            {{ item.val > 0 ? item.val : '<1' }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-
     </div>
-    <div v-if="props.topSongs.length > 10" class="mt-4">
+    <div v-if="props.topSongs.length > 10" class="mt-3">
         <button @click="showAllSongs = !showAllSongs"
-            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition">
+            class="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium shadow-md transition text-sm">
             {{ showAllSongs ? 'Show less' : 'View all' }}
         </button>
     </div>
 
-    <div class="mt-10 bg-[#2d2d2d] p-5 rounded-md">
-        <!--CHART-->
-        <div class="mt-16 chart-wrapper mb-10">
+    <div class="mt-10 bg-[#2d2d2d] p-4 sm:p-5 rounded-lg">
+        <div class="mt-4 sm:mt-8 h-[250px] sm:h-[350px] chart-wrapper mb-10">
             <LineChart :data="chartData" :options="chartOptions" />
         </div>
 
-        <!--CALENDAR-->
-        <div class="mt-16">
-            <div class="flex flex-col md:flex-row gap-4 w-full">
-                <div class="flex-1 min-w-0">
-                    <VDatePicker v-model="selectedDay" mode="date" class="w-full" />
+        <div class="mt-8 sm:mt-16">
+            <div class="flex flex-col lg:flex-row gap-6 w-full">
+                <div class="w-full lg:flex-1 min-w-0 overflow-hidden rounded-lg">
+                    <VDatePicker v-model="selectedDay" mode="date" class="w-full" borderless />
                 </div>
 
-                <div class="flex-1 min-w-0 bg-gray-800 text-white p-4 rounded-lg w-full">
-                    <h2>{{ selectedDay.toLocaleDateString('en-GB') }}</h2>
-                    <div class="mt-3 h-[600px] overflow-y-auto">
-                        <table class="table-fixed w-full border-separate border-spacing-y-2 mt-3">
-                            <thead>
-                                <tr class="text-left text-gray-300">
-                                    <th class="px-3 py-2">Artist</th>
-                                    <th class="px-3 py-2">Minutes listened</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="([artist, minutes]) in Array.from(listeningPerDayPerArtist.get(selectedDay.toISOString().slice(0, 10)) || [])"
-                                    :key="artist" class="bg-[#222] rounded">
-                                    <td class="px-3 py-2 align-top">{{ artist }}</td>
-                                    <td class="px-3 py-2 align-top">{{ Math.floor(minutes) > 0 ?
-                                        Math.floor(minutes) : '<1' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="w-full lg:flex-1 min-w-0 bg-gray-800 text-white p-4 rounded-lg">
+                    <h2 class="font-bold border-b border-gray-700 pb-2 text-base sm:text-lg">
+                        {{ selectedDay.toLocaleDateString('en-GB') }}
+                    </h2>
+                    <div class="mt-3 pr-1">
+                        <div class="overflow-x-auto max-h-[350px] sm:max-h-[450px] overflow-y-auto">
+                            <table class="w-full min-w-[300px] border-separate border-spacing-y-2 text-xs sm:text-sm table-fixed">
+                                <thead>
+                                    <tr class="text-left text-gray-400">
+                                        <th class="px-2 py-1 w-[70%]">Artist</th>
+                                        <th class="px-2 py-1 w-[30%]">
+                                            {{ props.service === "spotify" ? "Minutes" : "Plays" }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="([artist, minutes]) in Array.from(listeningPerDayPerArtist.get(selectedDay.toISOString().slice(0, 10)) || [])"
+                                        :key="artist" class="bg-[#222] rounded">
+                                        <td class="px-3 py-2 font-semibold truncate">{{ artist }}</td>
+                                        <td class="px-3 py-2 font-mono text-emerald-400 truncate">
+                                            {{ Math.floor(minutes) > 0 ? Math.floor(minutes) : '<1' }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- <Dialog>
-            <h1>AAA</h1>
-        </Dialog> -->
-
     </div>
-
 </template>
 
 <script setup lang="ts">
