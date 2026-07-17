@@ -60,7 +60,7 @@
                                     <li>On Google Takeout, deselect everything and check only YouTube and YouTube Music.
                                     </li>
                                     <li>Under options, select only History and deselect all other data formats.</li>
-                                    <li>Extract the downloaded zip file and upload the Json here (view history).</li>
+                                    <li>Extract the downloaded zip file and upload the Json here (Takeout < Youtube Music < History < view history.json).</li>
                                 </ul>
                             </div>
                         </div>
