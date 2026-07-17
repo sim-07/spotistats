@@ -72,7 +72,7 @@
                             :totalListenedMinutes="totalListenedMinutes" :avgSongDuration="avgSongDuration"
                             :topArtists="topArtists" :topSongs="topSongs"
                             :listeningPerDayPerArtist="listeningPerDayPerArtist" :listeningPerDay="listeningPerDay"
-                            :currentYearDays="currentYearDays" :dataYear="dataYear" />
+                            :currentYearDays="currentYearDays" :dataYear="dataYear" :service="service" />
                     </div>
 
                 </div>
@@ -105,8 +105,8 @@ const time = ref(30)
 let allData: historyProps[] = []
 
 const totalListenedMinutes = ref(0)
-const topArtists = ref<{ artist: string; minutes: number }[]>([])
-const topSongs = ref<{ song: string; artist: string; minutes: number }[]>([])
+const topArtists = ref<{ artist: string; val: number }[]>([])
+const topSongs = ref<{ song: string; artist: string; val: number }[]>([])
 const listeningPerDay = ref(new Map<string, number>())
 const listeningPerDayPerArtist = ref(new Map<string, Map<string, number>>())
 
@@ -116,6 +116,7 @@ const selectedDay = ref(new Date())
 let lastDate: number
 const currentYearDays = ref(1)
 let avgSongDuration: number
+let service: string
 
 async function handleFolderYtMusic(event: Event) {
     const files = (event.target as HTMLInputElement).files
@@ -125,7 +126,7 @@ async function handleFolderYtMusic(event: Event) {
     const jsonFiles = fileArray.filter((f) => f.name.endsWith('.json'))
 
     if (jsonFiles.length === 0) {
-        alert("Seleziona un file .json valido!");
+        alert("Json is not valid");
         return;
     }
 
@@ -151,7 +152,7 @@ async function handleFolderYtMusic(event: Event) {
 
                                     return {
                                         ts: item.time,
-                                        ms_played: 180000, // Stima standard di 3 minuti
+                                        ms_played: 210000,
                                         master_metadata_track_name: trackName,
                                         master_metadata_album_artist_name: artistName
                                     }
@@ -173,6 +174,8 @@ async function handleFolderYtMusic(event: Event) {
     })
 
     if (allData.length === 0) return
+
+    service = "yt"
 
     processStatsAndRedirect()
 }
@@ -207,6 +210,8 @@ async function handleFolderSpotify(event: Event) {
     })
 
     if (allData.length === 0) return
+
+    service = "spotify"
 
     processStatsAndRedirect()
 }
@@ -267,8 +272,8 @@ function calculateTopArtists() {
     })
 
     topArtists.value = Array.from(artistMap.entries())
-        .map(([artist, ms]) => ({ artist, minutes: Math.floor(ms / 1000 / 60) }))
-        .sort((a, b) => b.minutes - a.minutes)
+        .map(([artist, ms]) => ({ artist, val: Math.floor(ms / 1000 / 60) }))
+        .sort((a, b) => b.val - a.val)
 }
 
 function calculateTopSongs() {
@@ -289,8 +294,8 @@ function calculateTopSongs() {
     })
 
     topSongs.value = Array.from(songMap.entries())
-        .map(([song, { artist, ms }]) => ({ song, artist, minutes: Math.floor(ms / 1000 / 60) }))
-        .sort((a, b) => b.minutes - a.minutes)
+        .map(([song, { artist, ms }]) => ({ song, artist, val: Math.floor(ms / 1000 / 60) }))
+        .sort((a, b) => b.val - a.val)
 }
 
 function calcGraphData() {

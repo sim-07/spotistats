@@ -13,7 +13,7 @@
     </div>
 
     <div class="mt-16 mb-10 flex gap-15">
-        <h1 class="mt-7 mb-7 font-bold text-2xl">Total listened (minutes):</h1>
+        <h1 class="mt-7 mb-7 font-bold text-2xl">{{ props.service == "spotify" ? "Total listened (minutes):" : "Total listened (esteemed minutes):"}}</h1>
         <h1 class="text-4xl font-semibold mt-5 mb-15">
 
             {{ totalListenedMinutes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
@@ -34,7 +34,7 @@
             <span class="text-2xl font-bold ml-2">{{ props.topSongs.length }}</span> songs
         </h2>
 
-        <h2 class="text-lg font-semibold">
+        <h2 v-if="props.service == 'spotify'" class="text-lg font-semibold">
             Average song duration:
             <span class="text-2xl font-bold ml-2">{{ avgSongDuration }}</span> min
         </h2>
@@ -48,14 +48,14 @@
                     <tr class="text-left text-gray-300">
                         <th class="px-4 py-3 w-12">#</th>
                         <th class="px-4 py-3">Artist</th>
-                        <th class="px-4 py-3 w-48">Minutes listened</th>
+                        <th class="px-4 py-3 w-48">{{ props.service == "spotify" ? "Minutes listened" : "Plays" }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(item, idx) in displayedArtists" :key="item.artist" class="bg-[#222] rounded">
                         <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
                         <td class="px-4 py-3 align-top">{{ item.artist }}</td>
-                        <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1' }}</td>
+                        <td class="px-4 py-3 align-top">{{ item.val > 0 ? item.val : '<1' }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -79,7 +79,7 @@
                         <th class="px-4 py-3 w-12">#</th>
                         <th class="px-4 py-3">Songs</th>
                         <th class="px-4 py-3">Artist</th>
-                        <th class="px-4 py-3 w-48">Minutes listened</th>
+                        <th class="px-4 py-3 w-48">{{ props.service == "spotify" ? "Minutes listened" : "Plays" }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,7 +87,7 @@
                         <td class="px-4 py-3 align-top">{{ idx + 1 }}</td>
                         <td class="px-4 py-3 align-top wrap-break-word">{{ item.song }}</td>
                         <td class="px-4 py-3 align-top wrap-break-word">{{ item.artist }}</td>
-                        <td class="px-4 py-3 align-top">{{ item.minutes > 0 ? item.minutes : '<1' }}</td>
+                        <td class="px-4 py-3 align-top">{{ item.val > 0 ? item.val : '<1' }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -164,10 +164,11 @@ const props = defineProps<{
     dataYear: number
     totalListenedMinutes: number
     avgSongDuration: number
-    topArtists: { artist: string; minutes: number }[]
-    topSongs: { song: string; artist: string; minutes: number }[]
+    topArtists: { artist: string; val: number; }[]
+    topSongs: { song: string; artist: string; val: number }[]
     listeningPerDay: Map<string, number>
     listeningPerDayPerArtist: Map<string, Map<string, number>>
+    service: string
 }>()
 
 

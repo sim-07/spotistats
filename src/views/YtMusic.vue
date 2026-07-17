@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div class="flex flex-col min-h-screen bg-[#1a1a1a] text-white antialiased">
         <Header></Header>
 
@@ -14,7 +14,7 @@
                             :totalListenedMinutes="totalPlays" :avgSongDuration="0"
                             :topArtists="topArtists" :topSongs="topSongs"
                             :listeningPerDayPerArtist="listeningPerDayPerArtist" :listeningPerDay="listeningPerDay"
-                            :currentYearDays="currentYearDays" :dataYear="dataYear" />
+                            :currentYearDays="currentYearDays" :dataYear="dataYear" service="yt" />
                     </div>
 
                     <div v-if="showStats" class="lg:col-span-12 mt-4 p-6 text-white mb-10">
@@ -22,7 +22,7 @@
                             :totalListenedMinutes="totalPlays" :avgSongDuration="0"
                             :topArtists="topArtists" :topSongs="topSongs"
                             :listeningPerDayPerArtist="listeningPerDayPerArtist" :listeningPerDay="listeningPerDay"
-                            :currentYearDays="currentYearDays" :dataYear="dataYear" />
+                            :currentYearDays="currentYearDays" :dataYear="dataYear" service="yt" />
                     </div>
 
                 </div>
@@ -53,17 +53,15 @@ import SelectFolderYtMusic from '../components/SelectFolderYtMusic.vue'
 import Stats from '../components/Stats.vue'
 import Header from '../components/Header.vue'
 
-// 1. Interfaccia per leggere il JSON grezzo di YouTube Takeout
-interface YTMHistoryRaw {
-    header: string
-    title: string
-    titleUrl?: string
-    subtitles?: { name: string; url: string }[]
-    time: string
-    products: string[]
-}
+// interface YTMHistoryRaw {
+//     header: string
+//     title: string
+//     titleUrl?: string
+//     subtitles?: { name: string; url: string }[]
+//     time: string
+//     products: string[]
+// }
 
-// 2. Interfaccia pulita per l'elaborazione interna
 interface ParsedTrack {
     ts: string
     trackName: string
@@ -74,10 +72,9 @@ const showStats = ref(false)
 const time = ref(30)
 let allData: ParsedTrack[] = []
 
-// Modificati da minuti a conteggio ascolti (plays)
 const totalPlays = ref(0)
-const topArtists = ref<{ artist: string; minutes: number }[]>([]) // Mantenuto 'minutes' come nome prop per non rompere Stats.vue, ma conterrà i PLAYS
-const topSongs = ref<{ song: string; artist: string; minutes: number }[]>([]) 
+const topArtists = ref<{ artist: string; val: number }[]>([])
+const topSongs = ref<{ song: string; artist: string; val: number }[]>([]) 
 const listeningPerDay = ref(new Map<string, number>())
 const listeningPerDayPerArtist = ref(new Map<string, Map<string, number>>())
 const dataYear = ref(new Date().getFullYear())
@@ -91,7 +88,6 @@ async function handleFolderYtMusic(event: Event) {
     if (!files || files.length === 0) return
 
     const fileArray = Array.from(files)
-    // Filtra solo i file che finiscono per .json (funziona sia che tu selezioni un singolo file sia multipli)
     const jsonFiles = fileArray.filter((f) => f.name.endsWith('.json'))
 
     if (jsonFiles.length === 0) {
@@ -108,8 +104,6 @@ async function handleFolderYtMusic(event: Event) {
                         try {
                             const rawData = JSON.parse(reader.result as string)
                             
-                            // Gestisce sia se Google Takeout ti dà un array di oggetti [], 
-                            // sia se è un JSON strutturato diversamente
                             const list = Array.isArray(rawData) ? rawData : (rawData.events || [])
 
                             // Pulizia e mappatura dei dati
@@ -202,9 +196,9 @@ function calculateTopArtists() {
     const sorted = Array.from(artistMap.entries())
         .map(([artist, count]) => ({
             artist,
-            minutes: count, // Passo il conteggio al posto dei minuti per compatibilità col componente
+            val: count, // Passo il conteggio al posto dei minuti per compatibilità col componente
         }))
-        .sort((a, b) => b.minutes - a.minutes)
+        .sort((a, b) => b.val - a.val)
 
     topArtists.value = sorted
 }
@@ -230,9 +224,9 @@ function calculateTopSongs() {
         .map(([song, { artist, count }]) => ({
             song,
             artist,
-            minutes: count, // Passo il conteggio al posto dei minuti per compatibilità
+            val: count, // Passo il conteggio al posto dei minuti per compatibilità
         }))
-        .sort((a, b) => b.minutes - a.minutes)
+        .sort((a, b) => b.val - a.val)
 
     topSongs.value = sorted
 }
@@ -308,4 +302,4 @@ function calcCalendarData() {
 .chart-wrapper {
     height: 240px;
 }
-</style>
+</style> -->
