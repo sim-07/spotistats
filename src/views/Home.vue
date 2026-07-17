@@ -4,10 +4,8 @@
             :warp-amount="0" :resolution-scale="1" />
     </div>
 
-    <div 
-        class="relative z-10 flex flex-col min-h-screen text-white antialiased"
-        :class="showStats ? 'bg-[#222222]' : 'bg-transparent'"
-    >
+    <div class="relative z-10 flex flex-col min-h-screen text-white antialiased"
+        :class="showStats ? 'bg-[#222222]' : 'bg-transparent'">
         <Header></Header>
 
         <main class="flex flex-1 flex-col justify-center">
@@ -60,7 +58,8 @@
                                     <li>On Google Takeout, deselect everything and check only YouTube and YouTube Music.
                                     </li>
                                     <li>Under options, select only History and deselect all other data formats.</li>
-                                    <li>Extract the downloaded zip file and upload the Json here (Takeout < Youtube Music < History < view history.json).</li>
+                                    <li>Extract the downloaded zip file and upload the Json here (Takeout < Youtube
+                                            Music < History < view history.json).</li>
                                 </ul>
                             </div>
                         </div>
@@ -75,6 +74,18 @@
                             :currentYearDays="currentYearDays" :dataYear="dataYear" :service="service" />
                     </div>
 
+                </div>
+            </section>
+
+            <section v-if="!showStats" class="mt-20 mb-10 w-full max-w-5xl mx-auto px-4 text-center">
+                <h2 class="text-2xl font-bold text-white mb-8">Example outputs</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-neutral-900/50 p-2 rounded-xl border border-neutral-800">
+                        <img src="/screen1.png" alt="Stats Overview" class="rounded-lg w-full h-auto" />
+                    </div>
+                    <div class="bg-neutral-900/50 p-2 rounded-xl border border-neutral-800">
+                        <img src="/screen2.png" alt="Detailed Analysis" class="rounded-lg w-full h-auto" />
+                    </div>
                 </div>
             </section>
         </main>
