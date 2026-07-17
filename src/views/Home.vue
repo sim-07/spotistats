@@ -11,13 +11,13 @@
         <Header></Header>
 
         <main class="flex flex-1 flex-col justify-center">
-            <section class="mx-auto px-6 py-20 max-w-5xl w-full">
+            <section class="mx-auto px-2 sm:px-6 py-12 sm:py-20 max-w-5xl w-full">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
 
-                    <div v-if="!showStats" class="lg:col-span-12 flex flex-col gap-12 items-center w-full">
+                    <div v-if="!showStats" class="lg:col-span-12 flex flex-col gap-8 sm:gap-12 items-center w-full">
 
                         <div
-                            class="w-full max-w-xl bg-neutral-900/60 backdrop-blur-md p-8 rounded-2xl border border-neutral-800 shadow-2xl flex flex-col gap-6">
+                            class="w-full max-w-xl bg-neutral-900/60 backdrop-blur-md p-4 sm:p-8 rounded-2xl border border-neutral-800 shadow-2xl flex flex-col gap-6">
                             <SelectFolderSpotify :handleFolder="handleFolderSpotify" />
 
                             <div class="border-t border-neutral-800/80 pt-4 text-xs text-neutral-400 space-y-3">
@@ -41,7 +41,7 @@
                         </div>
 
                         <div
-                            class="w-full max-w-xl bg-neutral-900/60 backdrop-blur-md p-8 rounded-2xl border border-neutral-800 shadow-2xl flex flex-col gap-6">
+                            class="w-full max-w-xl bg-neutral-900/60 backdrop-blur-md p-4 sm:p-8 rounded-2xl border border-neutral-800 shadow-2xl flex flex-col gap-6">
                             <SelectFolderYtMusic :handleFolder="handleFolderYtMusic" />
 
                             <div class="border-t border-neutral-800/80 pt-4 text-xs text-neutral-400 space-y-3">
@@ -67,7 +67,7 @@
 
                     </div>
 
-                    <div v-if="showStats" class="lg:col-span-12 mt-4 p-6 text-white mb-10">
+                    <div v-if="showStats" class="lg:col-span-12 mt-4 px-1 py-4 sm:p-6 text-white mb-10">
                         <Stats v-model:time="time" v-model:selectedDay="selectedDay"
                             :totalListenedMinutes="totalListenedMinutes" :avgSongDuration="avgSongDuration"
                             :topArtists="topArtists" :topSongs="topSongs"
